@@ -67,7 +67,7 @@ public class Mixson {
     @FunctionalInterface
     public interface MixsonEvent {
 
-        JsonElement run(JsonElement json);
+        JsonElement run(JsonElement elem);
 
     }
 }

@@ -3,16 +3,13 @@
   "id": "mixson",
   "version": "${version}",
   "name": "Mixson",
-  "description": "",
-  "authors": [],
+  "description": "Allows in-code modification of .json resources",
+  "authors": [
+    "Ramixin"
+  ],
   "contact": {},
   "license": "MIT",
   "icon": "assets/mixson/icon.png",
-  "entrypoints": {
-    "main": [
-      "net.ramixin.mixson.TestModInitializer"
-    ]
-  },
   "environment": "*",
   "mixins": [
     "mixson.mixins.json"
