@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.ramixin.mixson.mixins",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ResourceManagerImplMixinArray"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
