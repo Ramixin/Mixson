@@ -4,6 +4,7 @@
   "package": "net.ramixin.mixson.mixins",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "JsonDataLoaderMixin",
     "ResourceManagerImplMixinArray"
   ],
   "injectors": {
