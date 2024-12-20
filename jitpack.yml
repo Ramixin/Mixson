@@ -1,6 +1,6 @@
 before_install:
-  - sdk install java 17.0.10-tem
-  - sdk use java 17.0.10-tem
+  - sdk install java 21.0.5-tem
+  - sdk use java 21.0.5-tem
   - mv build.gradle temp.gradle
   - gradle wrapper --gradle-version 8.11.1 --no-daemon --stacktrace
   - mv temp.gradle build.gradle

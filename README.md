@@ -4,7 +4,31 @@ A simple lightweight library that allows for .json resource files to be accessed
 
 ---
 
-## Registering an event
+## Downloading the Project
+
+This project can be installed through jitpack. First, add the following to the *first* `repositories` section in the `build.gradle`:
+```gradle
+repositories {
+    ...
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+    ...
+}
+```
+After that is added,
+the dependency can be added through inserting this into the `dependencies` section in the `build.gradle`:
+```gradle
+
+dependencies {
+    ...
+    modImplementation 'com.github.ramixin:mixson:TAG'
+    ...
+}
+```
+
+The `TAG` in the above section is where the specific version of Mixson will go. To find a version, go to https://jitpack.io/#ramixin/mixson and choose one of the versions to be pasted in where `TAG` is.
+
+## Registering an Event
 
 There are two methods made available to the user for declaring an event:
 
