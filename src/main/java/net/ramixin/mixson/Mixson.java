@@ -33,7 +33,40 @@ public class Mixson {
         events.put(priority, eventSet);
     }
 
+    public static boolean removeEvent(Identifier eventId) {
+        for(Set<AssociatedMixsonEvent> eventSet : events.values())
+            for(AssociatedMixsonEvent event : eventSet) if(event.eventId().equals(eventId)) {
+                eventSet.remove(event);
+                return true;
+            }
+        return false;
+    }
+
     private record AssociatedMixsonEvent(Identifier resourceId, Identifier eventId, MixsonEvent event, boolean silentlyFail) {}
+
+    public static List<Resource> runEvents(List<Resource> original, Identifier id) {
+        JsonElement[] modifiedEntries = new JsonElement[original.size()];
+        for (Set<AssociatedMixsonEvent> eventSet : events.values()) for (AssociatedMixsonEvent event : eventSet) {
+            if(!event.resourceId().equals(id)) continue;
+            for (int i = 0; i < original.size(); i++) {
+                try {
+                    if(modifiedEntries[i] == null) modifiedEntries[i] = JsonParser.parseReader(original.get(i).getReader());
+                    JsonElement elem = modifiedEntries[i].getAsJsonObject();
+                    modifiedEntries[i] = event.event().run(elem);
+                } catch (Exception e) {
+                    String errorString = String.format("Failed to modify json file '%s' with event '%s'\n", event.resourceId(), event.eventId());
+                    if(event.silentlyFail()) LOGGER.error(errorString, e);
+                    else throw new MixsonError(errorString+e);
+                }
+            }
+        }
+        for (int i = 0; i < original.size(); i++) if(modifiedEntries[i] != null) {
+            Resource resource = original.get(i);
+            int finalI = i;
+            original.set(i, new Resource(resource.getPack(), () -> new ByteArrayInputStream(modifiedEntries[finalI].toString().getBytes()), resource::getMetadata));
+        }
+        return original;
+    }
 
     public static Map<Identifier, Resource> runEvents(Map<Identifier, Resource> original) {
         HashMap<Identifier, JsonElement> modifiedEntries = new HashMap<>();

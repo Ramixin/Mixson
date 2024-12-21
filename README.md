@@ -9,7 +9,7 @@ that allows for .json resource files to be accessed and edited in-code with an e
 
 | MC Version | Mod Version     |
 |------------|-----------------|
-| 1.21.4     | ✅ V:0.0.3       |
+| 1.21.4     | ✅ V:0.0.4       |
 | <= 1.21.3  | ❌  Incompatible |
 
 ## Downloading the Project
@@ -38,6 +38,7 @@ The `TAG` in the above section is where the specific version of Mixson will go. 
 
 ## Registering an Event
 
+All methods for the user will be located in the `Mixson` class.
 There are three methods made available to the user for declaring an event:
 
 ```java
@@ -45,7 +46,7 @@ There are three methods made available to the user for declaring an event:
 
     void registerModificationEvent(int priority, Identifier resourceId, Identifier eventId, final MixsonEvent event)
 
-void registerModificationEvent(int priority, Identifier resourceId, Identifier eventId, final MixsonEvent event, boolean failSilently)
+    void registerModificationEvent(int priority, Identifier resourceId, Identifier eventId, final MixsonEvent event, boolean failSilently)
 
 ```
 
@@ -94,6 +95,14 @@ However,
 the error can be sent to the log without the exception
 if the event was registered with the `failSilently` parameter set to true. Note that this will only work if the error is in the application of the modification. If the modification causes MC to fail decoding the file, an error will still be thrown.
 
+## Removing Events
+
+To remove a declared event, use the following method:
+```
+    boolean removeEvent(Identifier eventId)
+```
+The method takes in the event id given to the event when it was declared and returns a boolean.
+The returned boolean, if true, means an event was found and removed or could not be found if false.
 
 ---
 ## License
