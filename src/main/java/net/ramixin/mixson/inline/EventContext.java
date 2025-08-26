@@ -4,6 +4,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.ramixin.mixson.MixsonError;
 import net.ramixin.mixson.inline.entries.EventEntry;
 import net.ramixin.mixson.util.MixsonUtil;
+import net.ramixin.mixson.util.ResourceLocationUtil;
 import net.ramixin.mixson.util.ResourceLocator;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -60,7 +61,7 @@ public class EventContext<T> {
     }
 
     public BuiltResourceReference<T> getReference(String id) {
-        return this.references.get(ResourceLocation.parse(id));
+        return this.references.get(ResourceLocationUtil.parse(id));
     }
 
     public void markForDeletion(boolean shouldDelete) {

@@ -19,7 +19,7 @@ import java.util.function.Function;
 public interface MixsonUtil {
 
     static String identifierToPathString(String resourceId, String extension) {
-        ResourceLocation usable = ResourceLocation.parse(resourceId);
+        ResourceLocation usable = ResourceLocationUtil.parse(resourceId);
         return usable.getNamespace() + '~' + usable.getPath().replaceFirst(String.format("\\%s", extension), "").replaceAll("/", "-");
     }
 
@@ -29,7 +29,7 @@ public interface MixsonUtil {
 
     static ResourceLocation removeExtension(ResourceLocation id) {
         String stringId = id.getPath();
-        for(int i = stringId.length()-1; i > 0; i--) if(stringId.charAt(i) == '.') return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), stringId.substring(0, i));
+        for(int i = stringId.length()-1; i > 0; i--) if(stringId.charAt(i) == '.') return new ResourceLocation(id.getNamespace(), stringId.substring(0, i));
        return id;
     }
 
@@ -38,7 +38,7 @@ public interface MixsonUtil {
             String id = removeWildcard(resourceId);
             return resourceLoc -> resourceLoc.toString().startsWith(id);
         }
-        else return resourceLoc -> resourceLoc.equals(ResourceLocation.parse(resourceId));
+        else return resourceLoc -> resourceLoc.equals(ResourceLocationUtil.parse(resourceId));
     }
 
     static <T> void addComponent(T component, int priority, UUID uuid, Map<UUID, T> components, SortedMap<Integer, List<T>> orderedComponents) {

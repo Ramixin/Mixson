@@ -276,7 +276,7 @@ public final class Mixson implements ModInitializer {
             EventContext<T> context = processContext(runtime, markedForDeletion, eventEntry, event, resourceId, i, file.get(), (stringId, ordinal) -> {
                 if(!stringId.equals(resourceId.toString())) runtimeError(new IllegalStateException(String.format("cannot capture resource with id '%s' if event id is '%s'", stringId, resourceId)), event, resourceId);
                 if(ordinal < 0 || ordinal > original.size() - 1) ordinalError(ordinal, original.size()-1, eventEntry.event(), resourceId);
-                ResourceLocation id = ResourceLocation.parse(stringId);
+                ResourceLocation id = ResourceLocationUtil.parse(stringId);
                 Resource refResource = original.get(ordinal);
                 if(refResource == null) return null;
                 try {
@@ -317,7 +317,7 @@ public final class Mixson implements ModInitializer {
         try {
             EventContext<T> context = processContext(runtime, markedForDeletion, eventEntry, event, resourceId, pairedId, file.get(), (stringId, captureOrdinal) -> {
                 if(captureOrdinal < 0 || captureOrdinal > original.size()-1) ordinalError(captureOrdinal, original.size()-1, eventEntry.event(), resourceId);
-                ResourceLocation id = ResourceLocation.parse(stringId);
+                ResourceLocation id = ResourceLocationUtil.parse(stringId);
                 List<Resource> resourceList = original.get(id.withSuffix(event.codec().extensionAndDot()));
                 if(resourceList == null) return null;
                 Resource refResource = resourceList.get(captureOrdinal);
@@ -334,7 +334,7 @@ public final class Mixson implements ModInitializer {
             for(Map.Entry<ResourceLocation, T> createdEntry : context.getIdentifiedCreatedResources().entrySet()) {
                 ResourceLocation createdId = createdEntry.getKey();
                 if(!createdId.getPath().endsWith(event.codec().extensionAndDot()))
-                    logWarning("created resource '{}' does not end with its codec's extension '{}'", createdId, event.codec().extensionAndDot());
+                    logWarning(createdId, event.codec().extensionAndDot());
                 List<Resource> createdResources = original.computeIfAbsent(createdId, (unused) -> new ArrayList<>());
                 createdResources.add(event.codec().serialize(resource, createdEntry.getValue()));
             }
@@ -355,7 +355,7 @@ public final class Mixson implements ModInitializer {
         try {
             EventContext<T> context = processContext(runtime, markedForDeletion, eventEntry, event, resourceId, resourceId, file.get(), (stringId, ordinal) -> {
                 if(ordinal > 0) ordinalError(ordinal, 0, eventEntry.event(), resourceId);
-                ResourceLocation id = ResourceLocation.parse(stringId);
+                ResourceLocation id = ResourceLocationUtil.parse(stringId);
                 Resource refResource = original.get(id.withSuffix(event.codec().extensionAndDot()));
                 if(refResource == null) return null;
                 try {
@@ -369,7 +369,7 @@ public final class Mixson implements ModInitializer {
             for(Map.Entry<ResourceLocation, T> createdEntry : context.getIdentifiedCreatedResources().entrySet()) {
                 ResourceLocation createdId = createdEntry.getKey();
                 if(!createdId.getPath().endsWith(event.codec().extensionAndDot()))
-                    logWarning("created resource '{}' does not end with its codec's extension '{}'", createdId, event.codec().extensionAndDot());
+                    logWarning(createdId, event.codec().extensionAndDot());
                 original.put(createdId, event.codec().serialize(resource, createdEntry.getValue()));
             }
             original.put(resourceId, event.codec().serialize(resource, context.getFile()));
@@ -476,9 +476,9 @@ public final class Mixson implements ModInitializer {
     private static void logAction(String action, Object... args) {
         if(debugMode.ordinal() > 0) LOGGER.info(action, args);
     }
-
-    private static void logWarning(String warning, Object... args) {
-        if(debugMode.ordinal() > 0) LOGGER.warn(warning, args);
+    // suggestion: inline warning? passing it as a param seems to be unnecessary
+    private static void logWarning(Object... args) {
+        if(debugMode.ordinal() > 0) LOGGER.warn("created resource '{}' does not end with its codec's extension '{}'", args);
     }
 
     private static void logVerboseAction(String action, Object... args) {
