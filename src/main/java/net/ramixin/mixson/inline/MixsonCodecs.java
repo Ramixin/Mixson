@@ -6,12 +6,15 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.util.FastBufferedInputStream;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.zip.GZIPInputStream;
 
 public interface MixsonCodecs {
 
@@ -28,8 +31,13 @@ public interface MixsonCodecs {
             MixsonCodecs::bufferedImageToStream
     );
 
+    // what the fuck, mojang?
     MixsonCodec<CompoundTag> NBT = MixsonCodec.create("nbt",
-            resource -> NbtIo.readCompressed(resource.open(), NbtAccounter.unlimitedHeap()),
+            resource -> NbtIo.read(
+                    new DataInputStream(
+                            new FastBufferedInputStream(
+                                    new GZIPInputStream(resource.open()))),
+                    new NbtAccounter(Long.MAX_VALUE)),
             (r, elem) -> new Resource(r.source(), () -> new ByteArrayInputStream(nbtToStream(elem).toByteArray()), r::metadata),
             MixsonCodecs::nbtToStream
     );
