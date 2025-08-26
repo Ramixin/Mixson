@@ -6,7 +6,7 @@ import net.ramixin.mixson.atp.annotations.events.GenerativeMixsonEvent;
 import net.ramixin.mixson.atp.annotations.events.MixsonEvent;
 import net.ramixin.mixson.atp.processors.EventPreprocessors;
 import net.ramixin.mixson.atp.processors.EventProcessors;
-import org.apache.commons.lang3.function.TriConsumer;
+import org.apache.logging.log4j.util.TriConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
