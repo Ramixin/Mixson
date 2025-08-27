@@ -7,6 +7,7 @@ import net.ramixin.mixson.atp.annotations.Reference;
 import net.ramixin.mixson.atp.annotations.events.GenerativeMixsonEvent;
 import net.ramixin.mixson.atp.annotations.events.MixsonEvent;
 import net.ramixin.mixson.inline.*;
+import net.ramixin.mixson.util.ResourceLocationUtil;
 import org.slf4j.Logger;
 import oshi.util.tuples.Pair;
 
@@ -55,13 +56,13 @@ public interface EventProcessors {
             String name;
             if (reference.referenceId().isEmpty()) name = BuiltAnnotationEvent.generateEventName(parameter.getName());
             else name = reference.referenceId();
-            referenceIdsList.add(ResourceLocation.parse(name));
+            referenceIdsList.add(ResourceLocationUtil.parse(name));
             referencesList.add(new ResourceReference(reference.priority(), reference.value(), name));
         }
         ResourceLocation[] referenceIds = referenceIdsList.toArray(ResourceLocation[]::new);
         ResourceReference[] references = referencesList.toArray(ResourceReference[]::new);
         List<ResourceLocation> resourceLocations = new ArrayList<>();
-        for(String resourceId : event.resourceIds()) resourceLocations.add(ResourceLocation.parse(resourceId));
+        for(String resourceId : event.resourceIds()) resourceLocations.add(ResourceLocationUtil.parse(resourceId));
         Mixson.registerEvent(
                 event.codec(),
                 event.priority(),

@@ -2,6 +2,7 @@ package net.ramixin.mixson.inline;
 
 import net.minecraft.resources.ResourceLocation;
 import net.ramixin.mixson.util.ErrorMessageProvider;
+import net.ramixin.mixson.util.ResourceLocationUtil;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -23,8 +24,8 @@ public class BuiltResourceReference<T> implements ErrorMessageProvider {
     protected BuiltResourceReference(ResourceReference reference, MixsonCodec<T> codec) {
         if(reference.ordinal() == -1) throw new IllegalArgumentException(String.format("Ordinal for resource reference: %s cannot be -1", reference.referenceId()));
         if(reference.ordinal() < 0) throw new IllegalArgumentException(String.format("Ordinal for resource reference: %s cannot be negative", reference.referenceId()));
-        this.resourceId = ResourceLocation.parse(reference.resourceId());
-        this.referenceId = ResourceLocation.parse(reference.referenceId());
+        this.resourceId = ResourceLocationUtil.parse(reference.resourceId());
+        this.referenceId = ResourceLocationUtil.parse(reference.referenceId());
         this.ordinal = reference.ordinal();
         this.codec = codec;
     }
