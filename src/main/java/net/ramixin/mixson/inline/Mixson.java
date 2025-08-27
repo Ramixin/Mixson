@@ -334,7 +334,7 @@ public final class Mixson implements ModInitializer {
             for(Map.Entry<ResourceLocation, T> createdEntry : context.getIdentifiedCreatedResources().entrySet()) {
                 ResourceLocation createdId = createdEntry.getKey();
                 if(!createdId.getPath().endsWith(event.codec().extensionAndDot()))
-                    logWarning(createdId, event.codec().extensionAndDot());
+                    logWarning("created resource '{}' does not end with its codec's extension '{}'", createdId, event.codec().extensionAndDot());
                 List<Resource> createdResources = original.computeIfAbsent(createdId, (unused) -> new ArrayList<>());
                 createdResources.add(event.codec().serialize(resource, createdEntry.getValue()));
             }
@@ -369,7 +369,7 @@ public final class Mixson implements ModInitializer {
             for(Map.Entry<ResourceLocation, T> createdEntry : context.getIdentifiedCreatedResources().entrySet()) {
                 ResourceLocation createdId = createdEntry.getKey();
                 if(!createdId.getPath().endsWith(event.codec().extensionAndDot()))
-                    logWarning(createdId, event.codec().extensionAndDot());
+                    logWarning("created resource '{}' does not end with its codec's extension '{}'", createdId, event.codec().extensionAndDot());
                 original.put(createdId, event.codec().serialize(resource, createdEntry.getValue()));
             }
             original.put(resourceId, event.codec().serialize(resource, context.getFile()));
@@ -476,9 +476,8 @@ public final class Mixson implements ModInitializer {
     private static void logAction(String action, Object... args) {
         if(debugMode.ordinal() > 0) LOGGER.info(action, args);
     }
-    // suggestion: inline warning? passing it as a param seems to be unnecessary
-    private static void logWarning(Object... args) {
-        if(debugMode.ordinal() > 0) LOGGER.warn("created resource '{}' does not end with its codec's extension '{}'", args);
+    private static void logWarning(String warning, Object... args) {
+        if(debugMode.ordinal() > 0) LOGGER.warn(warning, args);
     }
 
     private static void logVerboseAction(String action, Object... args) {
