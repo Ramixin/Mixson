@@ -31,7 +31,6 @@ public interface MixsonCodecs {
             MixsonCodecs::bufferedImageToStream
     );
 
-    // what the fuck, mojang?
     MixsonCodec<CompoundTag> NBT = MixsonCodec.create("nbt",
             resource -> NbtIo.read(
                     new DataInputStream(
