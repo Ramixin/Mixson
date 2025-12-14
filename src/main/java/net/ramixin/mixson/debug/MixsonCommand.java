@@ -54,7 +54,7 @@ public class MixsonCommand {
         list.add(fillToLength("event id ", eventNameSpacing)+"| Calls | File Operations");
         String spacer = "-".repeat(25 + eventNameSpacing);
         list.add(spacer);
-        for(Map.Entry<String, CallCountEntry> sequencedEntry : map.sequencedEntrySet()) {
+        for(Map.Entry<String, CallCountEntry> sequencedEntry : map.entrySet()) {
             CallCountEntry callCountEntry = sequencedEntry.getValue();
             list.add(fillToLength(sequencedEntry.getKey(), eventNameSpacing) + "| "+fillToLength(String.valueOf(callCountEntry.eventCalls()), 6)+"| "+callCountEntry.fileOperations());
         }

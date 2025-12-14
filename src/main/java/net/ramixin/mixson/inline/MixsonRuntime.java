@@ -26,11 +26,11 @@ public class MixsonRuntime {
             List<AbstractEntry> entries = combinedEntries.computeIfAbsent(priority, k -> new ArrayList<>());
             builtEvents.stream().map((event) -> new EventEntry<>(priority, event)).forEach(entries::add);
         }
-        combinedEntries.sequencedValues().forEach(queuedEvents::addAll);
+        combinedEntries.values().forEach(queuedEvents::addAll);
     }
 
     protected AbstractEntry pop() {
-        return queuedEvents.removeFirst();
+        return queuedEvents.remove(queuedEvents.size()-1);
     }
 
     protected boolean hasFinished() {

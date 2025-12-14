@@ -133,20 +133,18 @@ public final class Mixson implements ModInitializer {
         final Set<UUID> filledReferences = new HashSet<>();
         while(runtime.hasFinished()) {
             AbstractEntry entry = runtime.pop();
-            switch (entry) {
-                case ReferenceEntry<?> referenceEntry -> {
-                    int ordinal = entry.getOrdinal();
-                    BuiltResourceReference<?> ref = referenceEntry.reference();
-                    ResourceLocation resourceId = ref.getResourceId().withSuffix(ref.getCodec().extensionAndDot());
-                    if(!original.containsKey(resourceId)) continue;
-                    if(ordinal >= 1) ordinalError(ordinal, 0, ref, resourceId);
-                    fulfillReference(original.get(resourceId), ref, filledReferences);
-                }
-
-                case EventEntry<?> eventEntry -> beginEventProcessing(Mixson::processStandardEvent, original, eventEntry, runtime, markedForDeletion);
-
-                default -> throw new IllegalStateException("Unexpected value: " + entry);
+            if(entry instanceof ReferenceEntry<?> referenceEntry) {
+                int ordinal = entry.getOrdinal();
+                BuiltResourceReference<?> ref = referenceEntry.reference();
+                ResourceLocation resourceId = ref.getResourceId().withSuffix(ref.getCodec().extensionAndDot());
+                if(!original.containsKey(resourceId)) continue;
+                if(ordinal >= 1) ordinalError(ordinal, 0, ref, resourceId);
+                fulfillReference(original.get(resourceId), ref, filledReferences);
             }
+            else if(entry instanceof EventEntry<?> eventEntry)
+                beginEventProcessing(Mixson::processStandardEvent, original, eventEntry, runtime, markedForDeletion);
+            else
+                throw new IllegalStateException("Unexpected runtime entry: " + entry);
 
         }
         filledReferences.forEach(uuid-> {
@@ -163,22 +161,19 @@ public final class Mixson implements ModInitializer {
         final Set<UUID> filledReferences = new HashSet<>();
         while(runtime.hasFinished()) {
             AbstractEntry entry = runtime.pop();
-            switch (entry) {
-                case ReferenceEntry<?> referenceEntry -> {
-                    int ordinal = entry.getOrdinal();
-                    BuiltResourceReference<?> ref = referenceEntry.reference();
-                    ResourceLocation resourceId = ref.getResourceId().withSuffix(ref.getCodec().extensionAndDot());
-                    if(!original.containsKey(resourceId)) continue;
-                    List<Resource> resources = original.get(resourceId);
-                    if(ordinal >= resources.size()) ordinalError(ordinal, resources.size()-1, ref, resourceId);
-                    Resource resource = resources.get(ordinal);
-                    fulfillReference(resource, ref, filledReferences);
-                }
-
-                case EventEntry<?> eventEntry -> beginEventProcessing(Mixson::prepareListEventProcessing, original, eventEntry, runtime, markedForDeletion);
-
-                default -> throw new IllegalStateException("Unexpected value: " + entry);
-            }
+            if(entry instanceof ReferenceEntry<?> referenceEntry) {
+                int ordinal = entry.getOrdinal();
+                BuiltResourceReference<?> ref = referenceEntry.reference();
+                ResourceLocation resourceId = ref.getResourceId().withSuffix(ref.getCodec().extensionAndDot());
+                if(!original.containsKey(resourceId)) continue;
+                List<Resource> resources = original.get(resourceId);
+                if(ordinal >= resources.size()) ordinalError(ordinal, resources.size()-1, ref, resourceId);
+                Resource resource = resources.get(ordinal);
+                fulfillReference(resource, ref, filledReferences);
+            } else if(entry instanceof EventEntry<?> eventEntry)
+                beginEventProcessing(Mixson::prepareListEventProcessing, original, eventEntry, runtime, markedForDeletion);
+            else
+                throw new IllegalStateException("Unexpected value: " + entry);
         }
         filledReferences.forEach(uuid-> {
             if(references.containsKey(uuid))
@@ -202,40 +197,36 @@ public final class Mixson implements ModInitializer {
         final Set<UUID> filledReferences = new HashSet<>();
         while(runtime.hasFinished()) {
             AbstractEntry entry = runtime.pop();
-            switch(entry) {
-                case ReferenceEntry<?> referenceEntry -> {
-                    int ordinal = entry.getOrdinal();
-                    BuiltResourceReference<?> ref = referenceEntry.reference();
-                    if(!ref.getResourceId().withSuffix(ref.getCodec().extensionAndDot()).equals(id)) continue;
-                    if(ordinal >= original.size()) ordinalError(ordinal, original.size()-1, ref, ref.getResourceId());
-                    Resource resource = original.get(ordinal);
-                    fulfillReference(resource, ref, filledReferences);
-                }
-
-                case EventEntry<?> eventEntry -> {
-                    BuiltMixsonEvent<?> event = eventEntry.event();
-                    int fileOperations = 0;
-                    if(!event.isApplicable(id)) continue;
-                    logVerboseAction("begun processing event '{}'", entry.getName());
-                    ReadableTimer timer = new ReadableTimer();
-                    int ordinal = eventEntry.getOrdinal();
-                    if(ordinal >= original.size()) ordinalError(ordinal, original.size()-1, event, id);
-                    if(ordinal == -1) {
-                        int toIter = original.size();
-                        for (int i = 0; i < toIter; i++) {
-                            processNamespaceEvent(original, runtime, markedForDeletion, eventEntry, id, i);
-                            fileOperations++;
-                        }
-                    }else {
-                        processNamespaceEvent(original, runtime, markedForDeletion, eventEntry, id, ordinal);
+            if(entry instanceof ReferenceEntry<?> referenceEntry) {
+                int ordinal = entry.getOrdinal();
+                BuiltResourceReference<?> ref = referenceEntry.reference();
+                if(!ref.getResourceId().withSuffix(ref.getCodec().extensionAndDot()).equals(id)) continue;
+                if(ordinal >= original.size()) ordinalError(ordinal, original.size()-1, ref, ref.getResourceId());
+                Resource resource = original.get(ordinal);
+                fulfillReference(resource, ref, filledReferences);
+            }
+            else if(entry instanceof EventEntry<?> eventEntry) {
+                BuiltMixsonEvent<?> event = eventEntry.event();
+                int fileOperations = 0;
+                if(!event.isApplicable(id)) continue;
+                logVerboseAction("begun processing event '{}'", entry.getName());
+                ReadableTimer timer = new ReadableTimer();
+                int ordinal = eventEntry.getOrdinal();
+                if(ordinal >= original.size()) ordinalError(ordinal, original.size()-1, event, id);
+                if(ordinal == -1) {
+                    int toIter = original.size();
+                    for (int i = 0; i < toIter; i++) {
+                        processNamespaceEvent(original, runtime, markedForDeletion, eventEntry, id, i);
                         fileOperations++;
                     }
-                    incrementCallCounts(event, fileOperations);
-                    logVerboseAction("successfully finished processing event '{}' in {}", entry.getName(), timer.timestamp());
+                }else {
+                    processNamespaceEvent(original, runtime, markedForDeletion, eventEntry, id, ordinal);
+                    fileOperations++;
                 }
-
-                default -> throw new IllegalStateException("Unexpected value: " + entry);
-            }
+                incrementCallCounts(event, fileOperations);
+                logVerboseAction("successfully finished processing event '{}' in {}", entry.getName(), timer.timestamp());
+            } else
+                throw new IllegalStateException("Unexpected value: " + entry);
         }
         filledReferences.forEach(uuid-> {
             if(references.containsKey(uuid))

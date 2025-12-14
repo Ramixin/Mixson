@@ -26,7 +26,7 @@ public class NamespaceResourceManagerMixin {
     private Optional<Resource> runMixsonEvents(Optional<Resource> original, ResourceLocation id) {
         if(original.isEmpty()) return Optional.empty();
         List<Resource> result = Mixson.runNamespaceEvents(new ArrayList<>(List.of(original.get())), id);
-        return Optional.ofNullable(result.getFirst());
+        return Optional.ofNullable(result.get(0));
     }
 
 }
