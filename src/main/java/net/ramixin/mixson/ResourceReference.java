@@ -74,11 +74,6 @@ public class ResourceReference<T> implements ErrorMessageProvider {
     }
 
     @Override
-    public String getRegistrationErrorMessage() {
-        return String.format("Failed to register reference '%s' for file '%s'\n", referenceName, index);
-    }
-
-    @Override
     public ErrorPolicy getErrorPolicy() {
         return ErrorPolicy.THROW;
     }

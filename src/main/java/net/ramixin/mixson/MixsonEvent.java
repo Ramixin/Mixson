@@ -25,11 +25,6 @@ public record MixsonEvent<T>(UUID uuid, MixsonCodec<T> codec, int priority, Life
     }
 
     @Override
-    public String getRegistrationErrorMessage() {
-        return String.format("Failed to register event %s\n", eventName);
-    }
-
-    @Override
     public ErrorPolicy getErrorPolicy() {
         return errorPolicy;
     }

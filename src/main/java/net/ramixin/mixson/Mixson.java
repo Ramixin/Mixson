@@ -13,7 +13,6 @@ import net.ramixin.mixson.enums.Lifetime;
 import net.ramixin.mixson.hooks.AbstractHook;
 import net.ramixin.mixson.util.Index;
 import net.ramixin.mixson.util.functions.Event;
-import net.ramixin.mixson.util.interfaces.ErrorMessageProvider;
 import net.ramixin.mixson.util.interfaces.MixsonCodec;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -30,6 +29,10 @@ import java.util.function.Predicate;
 
 import static net.ramixin.mixson.util.MixsonUtil.*;
 
+/**
+ * The principal utility class of the Mixson API. Contains all methods needed to start interfacing with Mixson.
+ * @see <a href="https://moddedmc.wiki/en/project/mixson/latest/docs">Mixson Documentation</a>
+ */
 @SuppressWarnings("unused")
 public final class Mixson {
 
@@ -46,12 +49,50 @@ public final class Mixson {
         throw new AssertionError("Cannot instantiate utility class");
     }
 
-    // EVENT REGISTRATION METHODS
-
+    /**
+     * Registers an {@link Event} for resources of type {@link JsonElement}.
+     * <p>
+     * This method wraps {@link #registerEvent(MixsonCodec, int, Lifetime, ErrorPolicy, String, Predicate, Event)} with a {@link MixsonCodec} of type {@link JsonElement}.
+     * <p>
+     * <b>Lock Notice:</b> This method is guarded by a {@link ReadWriteLock}. Calling this method may pause code
+     * execution.
+     * @param priority The priority of the event. Lower numbers are executed first.
+     * @param lifetime The {@link Lifetime} of the event.
+     * @param errorPolicy The {@link ErrorPolicy} of the event.
+     * @param eventName The name of the event. This is used for logging purposes.
+     * @param resourcePredicate The predicate for determining what resources the event should be applied to
+     *                          using {@link Index}.
+     * @param event The {@link Event} to register.
+     *
+     * @return The {@link UUID} of the registered event.
+     *
+     * @see <a href="https://moddedmc.wiki/en/project/mixson/latest/docs/1_the_basics/4_registration">Registration Documentation</a>
+     */
     public static UUID registerEvent(int priority, Lifetime lifetime, ErrorPolicy errorPolicy, String eventName, Predicate<Index> resourcePredicate, Event<JsonElement> event) {
         return registerEvent(MixsonCodecs.JSON_ELEMENT, priority, lifetime, errorPolicy, eventName, resourcePredicate, event);
     }
 
+    /**
+     * Registers an {@link Event} for resources of type {@link T}.
+     * <p>
+     * This method wraps {@link #registerEvent(MixsonEventBuilder)} by converting the provided parameters into a {@link MixsonEventBuilder} and then calling said method.
+     * <p>
+     * <b>Lock Notice:</b> This method is guarded by a {@link ReadWriteLock}. Calling this method may pause code
+     * execution.
+     * @param <T> The type of resource the event will be applied to.
+     * @param codec The {@link MixsonCodec} of the event.
+     * @param priority The priority of the event. Lower numbers are executed first.
+     * @param lifetime The {@link Lifetime} of the event.
+     * @param errorPolicy The {@link ErrorPolicy} of the event.
+     * @param eventName The name of the event. This is used for logging purposes.
+     * @param resourcePredicate The predicate for determining what resources the event should be applied to
+     *                          using {@link Index}.
+     * @param event The {@link Event} to register.
+     *
+     * @return The {@link UUID} of the registered event.
+     *
+     * @see <a href="https://moddedmc.wiki/en/project/mixson/latest/docs/1_the_basics/4_registration">Registration Documentation</a>
+     */
     public static <T> UUID registerEvent(MixsonCodec<T> codec, int priority, Lifetime lifetime, ErrorPolicy errorPolicy, String eventName, Predicate<Index> resourcePredicate, Event<T> event) {
         return registerEvent(new MixsonEventBuilder<T>()
                 .setCodec(codec)
@@ -64,6 +105,18 @@ public final class Mixson {
         );
     }
 
+    /**
+     * Registers an {@link Event} for resources of type {@link T}.
+     * <p>
+     * <b>Lock Notice:</b> This method is guarded by a {@link ReadWriteLock}. Calling this method may pause code
+     * execution.
+     * @param <T> The type of resource the event will be applied to.
+     * @param builder The {@link MixsonEventBuilder} to use for registering the event.
+     *
+     * @return The {@link UUID} of the registered event.
+     *
+     * @see <a href="https://moddedmc.wiki/en/project/mixson/latest/docs/1_the_basics/4_registration">Registration Documentation</a>
+     */
     public static <T> UUID registerEvent(MixsonEventBuilder<T> builder) {
         MixsonEvent<T> builtEvent = builder.build();
         if(builtEvent.lifetime() == Lifetime.DEFERRED)
@@ -72,10 +125,45 @@ public final class Mixson {
             return eventRegistry.register(builtEvent);
     }
 
+    /**
+     * Registers an {@link ResourceReference} for resources of type {@link JsonElement}.
+     * <p>
+     * This method wraps {@link #registerReference(MixsonCodec, int, Index, String)} with a {@link MixsonCodec} of type {@link JsonElement}.
+     * <p>
+     * <b>Lock Notice:</b> This method is guarded by a {@link ReadWriteLock}. Calling this method may pause code
+     * execution.
+     *
+     * @param priority The priority of the reference. Lower numbers are executed first.
+     * @param index The {@link Index} of the resource the reference is for. Must only match one resource.
+     * @param referenceName The name of the reference. This is used for logging purposes.
+     *
+     * @return The registered {@link ResourceReference}.
+     *
+     * @see <a href="https://moddedmc.wiki/en/project/mixson/latest/docs/1_the_basics/6_referencing">Reference Documentation</a>
+     */
     public static ResourceReference<JsonElement> registerReference(int priority, Index index, String referenceName) {
         return registerReference(MixsonCodecs.JSON_ELEMENT, priority, index, referenceName);
     }
 
+    /**
+     * Registers an {@link ResourceReference} for resources of type {@link T}.
+     * <p>
+     * This method wraps {@link #registerReference(ResourceReferenceBuilder)} by converting the provided parameters
+     *      into a {@link ResourceReferenceBuilder} and then calling said method.
+     * <p>
+     * <b>Lock Notice:</b> This method is guarded by a {@link ReadWriteLock}. Calling this method may pause code
+     * execution.
+     *
+     * @param <T> The type of resource the reference will be applied to.
+     * @param codec The {@link MixsonCodec} of the reference.
+     * @param priority The priority of the reference. Lower numbers are executed first.
+     * @param index The {@link Index} of the resource the reference is for. Must only match one resource.
+     * @param referenceName The name of the reference. This is used for logging purposes.
+     *
+     * @return The registered {@link ResourceReference}.
+     *
+     * @see <a href="https://moddedmc.wiki/en/project/mixson/latest/docs/1_the_basics/6_referencing">Reference Documentation</a>
+     */
     public static <T> ResourceReference<T> registerReference(MixsonCodec<T> codec, int priority, Index index, String referenceName) {
         return registerReference(new ResourceReferenceBuilder<T>()
                 .setCodec(codec)
@@ -85,14 +173,35 @@ public final class Mixson {
         );
     }
 
+    /**
+     * Registers an {@link ResourceReference} for resources of type {@link T}.
+     * <p>
+     * <b>Lock Notice:</b> This method is guarded by a {@link ReadWriteLock}. Calling this method may pause code
+     * execution.
+     *
+     * @param <T> The type of resource the reference will be applied to.
+     * @param builder The {@link ResourceReferenceBuilder} to use for registering the reference.
+     *
+     * @return The registered {@link ResourceReference}.
+     *
+     * @see <a href="https://moddedmc.wiki/en/project/mixson/latest/docs/1_the_basics/6_referencing">Reference Documentation</a>
+     */
     public static <T> ResourceReference<T> registerReference(ResourceReferenceBuilder<T> builder) {
         ResourceReference<T> ref = builder.build();
         referenceRegistry.register(ref);
         return ref;
     }
 
-    // EXTERNAL RUN METHODS
-
+    /**
+     * The key internal entrypoint method for resource processing.
+     * <p>
+     * <b>Lock Notice:</b> This method is guarded by a {@link ReadWriteLock}. Calling this method may pause code
+     * execution.
+     * @param <T> the collection of resources to be processed.
+     * @param hook the {@link AbstractHook} to be used for processing
+     * @return the resources from the hook.
+     *
+     */
     public static <T> T processHook(AbstractHook<T> hook) {
         lock.readLock().lock();
         MixsonRuntime<T> runtime = new MixsonRuntime<>(hook, eventRegistry, referenceRegistry, LOGGER::error);
@@ -125,13 +234,12 @@ public final class Mixson {
         List<Resource> resource = maybeResource.get();
         if(resource.isEmpty()) return;
         if(resource.size() > 1) {
-            runtime.error(new MixsonException("resource reference cannot match more than 1 resource"), ref, ref.getIndex().id());
+            runtime.error(new MixsonException("ResourceReference cannot match more than 1 resource"), ref, ref.getIndex().id());
             return;
         }
         R file = ref.getCodec().deserialize(resource.getFirst());
         ref.fulfill(file);
     }
-
 
     private static <T, R> void handleEvent(EventEntry<T> eventEntry, MixsonRuntime<R> runtime) {
         MixsonEvent<T> event = eventEntry.event();
@@ -203,48 +311,71 @@ public final class Mixson {
             hook.insert(createdResource.getKey(), event.codec().serialize(resourceEntry.getValue(), createdResource.getValue()), event.codec().extensionAndDot(), false);
     }
 
-    // ERRORS
-
-    static void registrationError(Exception e, ErrorMessageProvider errorMessageProvider) {
-        if(errorMessageProvider.getErrorPolicy() != ErrorPolicy.THROW) LOGGER.error(errorMessageProvider.getRegistrationErrorMessage(), e);
-        else throw new MixsonException(errorMessageProvider.getRegistrationErrorMessage(), e);
-    }
-
-    // MISC. PUBLICS
-
-    /** @Deprecated Use {@link #removeEvent(UUID)} or {@link #removeReference(UUID)} instead**/
+    /** @deprecated Use {@link #removeEvent(UUID)} or {@link #removeReference(UUID)} instead**/
     @Deprecated
     public static boolean remove(UUID uuid) {
         return removeEvent(uuid) || removeReference(uuid);
     }
 
+    /**
+     * Unregisters an {@link Event}.
+     * @param uuid the {@link UUID} of the event.
+     * @return {@code true} if the event was found and unregistered, or {@code false} when the event was not found.
+     */
     public static boolean removeEvent(UUID uuid) {
         return eventRegistry.unregister(uuid);
     }
 
+    /**
+     * Unregisters an {@link ResourceReference}.
+     * @param uuid the {@link UUID} of the reference.
+     * @return {@code true} if the reference was found and unregistered, or{@code false} when the reference was not found.
+     */
     public static boolean removeReference(UUID uuid) {
         return referenceRegistry.unregister(uuid);
     }
 
-    /** @Deprecated Use {@link #hasEvent(UUID)} or {@link #hasReference(UUID)} instead**/
+    /** @deprecated Use {@link #hasEvent(UUID)} or {@link #hasReference(UUID)} instead**/
     @Deprecated
     public static boolean has(UUID uuid) {
         return hasEvent(uuid) || hasReference(uuid);
     }
 
+    /**
+     * Checks if an {@link Event} is registered.
+     * @param uuid the {@link UUID} of the event.
+     * @return {@code true} if the event is registered, else {@code false}.
+     */
     public static boolean hasEvent(UUID uuid) {
         return eventRegistry.contains(uuid);
     }
 
+    /**
+     * Checks if an {@link ResourceReference} is registered.
+     * @param uuid the {@link UUID} of the reference.
+     * @return {@code true} if the reference is registered, else {@code false}.
+     */
     public static boolean hasReference(UUID uuid) {
         return referenceRegistry.contains(uuid);
     }
 
+    /**
+     * Retrieves the name of an {@link Event}
+     * @param uuid the {@link UUID} of the event.
+     * @return the name
+     */
     public static String getEventName(UUID uuid) {
         MixsonEvent<?> event = eventRegistry.get(uuid).orElseThrow();
         return event.eventName();
     }
 
+    /**
+     * Prevents {@link #processHook(AbstractHook)} from running until the returned {@link Runnable} is called
+     * <p>
+     * <b>Lock Notice:</b> This method is guarded by a {@link ReadWriteLock}. Calling this method may pause code
+     * execution.
+     * @return the {@link Runnable} to release the lock. If this is not called, Mixson will deadlock.
+     */
     public static Runnable lockEventProcessing() {
         lock.writeLock().lock();
         return () -> lock.writeLock().unlock();
@@ -252,6 +383,10 @@ public final class Mixson {
 
     // DEBUGGING STUFF
 
+    /**
+     * Enables a {@link DebugOption} for Mixson. Debug options cannot be disabled once enabled.
+     * @param option the {@link DebugOption} to enable.
+     */
     public static void enableDebugOption(DebugOption option) {
         Mixson.debugOptionFlags |= option.getMask();
     }

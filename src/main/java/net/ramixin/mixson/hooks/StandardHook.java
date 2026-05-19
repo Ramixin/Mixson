@@ -44,7 +44,7 @@ public class StandardHook extends AbstractHook<Map<Identifier, Resource>> {
     public void insert(@NotNull Index index, List<Resource> resources, String fileExt, boolean overwrite) {
         if(resources.isEmpty())
             throw new IllegalArgumentException("Cannot insert empty resource list");
-        if(index.ordinal()+1 > 1)
+        if(index.ordinal() > 0)
             throw new IllegalArgumentException("Resource type does not support ordinal indexing");
         if(this.attachedResources.put(index.id().withSuffix(fileExt), resources.getFirst()) == null && overwrite)
             throw new IllegalStateException("Cannot overwrite resource: Resource with id " + index + " does not exists");

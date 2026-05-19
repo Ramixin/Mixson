@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "mixson-test",
+  "version": "1.0.0",
+  "name": "Mixson Game Test Mod",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      "net.ramixin.mixson.test.ResourceProcessingGameTest"
+    ]
+  },
+  "mixins": [
+    "mixson-test.mixins.json"
+  ]
+}

@@ -9,8 +9,6 @@ public interface ErrorMessageProvider {
 
     String getRuntimeErrorMessage(Identifier resourceId);
 
-    String getRegistrationErrorMessage();
-
     ErrorPolicy getErrorPolicy();
 
     String getRegistrationMessage(int priority);
