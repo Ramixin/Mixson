@@ -6,18 +6,25 @@
 
 </p>
 
-
 ---
 
 ## Downloading the Project
 
-This project can be installed through jitpack. First, add the following to the *first* `repositories` section in the `build.gradle`:
+This project is no longer hosted via jitpack. Instead, Mixson can either be downloaded as a .jar from the
+Modrinth page or can be added as a dependency to a project via the Modrinth Maven:
 ```gradle
 repositories {
-    ...
-    mavenCentral()
-    maven { url 'https://jitpack.io' }
-    ...
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
 }
 ```
 After that is added,
@@ -26,18 +33,16 @@ the dependency can be added through inserting this into the `dependencies` secti
 
 dependencies {
     ...
-    modImplementation 'com.github.ramixin:mixson-fabric:TAG'
+    implementation "maven.modrinth:mixson:VERSION"
     ...
 }
 ```
-
-The `TAG` in the above section is where the specific version of Mixson will go.
-Either go to the wiki page below and copy the best version for your MC version, or
-go to https://jitpack.io/#ramixin/mixson-fabric.
+Check the modrinth page for the latest version.
+For more information, see the [Modrinth maven support article](https://support.modrinth.com/en/articles/8801191-modrinth-maven).
 
 ## Usage
 
-See the wiki for indepth usage instructions and examples: https://github.com/Ramixin/Mixson-Fabric/wiki
+See the [wiki](https://moddedmc.wiki/en/project/mixson/latest/docs) for indepth usage instructions and examples.
 ## License
 
 This project is under an MIT
