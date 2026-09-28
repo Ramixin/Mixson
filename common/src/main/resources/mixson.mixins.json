@@ -5,8 +5,7 @@
   "compatibilityLevel": "JAVA_25",
   "mixins": [
     "NamespaceResourceManagerMixin",
-    "ResourceManagerImplMixinArray",
-    "ResourceManagerRegistryLoadTaskMixin"
+    "ResourceManagerImplMixinArray"
   ],
   "injectors": {
     "defaultRequire": 1
